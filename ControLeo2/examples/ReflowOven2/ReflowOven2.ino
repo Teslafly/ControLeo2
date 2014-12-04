@@ -99,8 +99,8 @@
 
 // ***** INCLUDES *****
 #include <Wire.h>
-#include <ControLeo2.h>
 #include <EEPROM.h>
+#include "ControLeo2.h" // local file
 
 // ***** CONSTANTS *****
 #define CLOCK_INTERVAL   100  // how frequently the state machine checks for advancements (ms)
@@ -116,6 +116,16 @@
 #define OFF                0
 #define ON                 1
 
+// ***** PIN ASSIGNEMENTS *****
+#define CONTROLEO_BUTTON_TOP_PIN     11  // Top button is on D11
+#define CONTROLEO_BUTTON_BOTTOM_PIN  2   // Bottom button is on D2
+#define CONTROLEO_BUZZER_PIN         13  // buzzer is on D13
+
+#define TOP_ELEMENT_PIN              4   // upper heater pin 
+#define BOTTOM_ELEMENT_PIN           5   // lower heater pin
+#define BOOST_ELEMENT_PIN            6   // booster heater pin
+
+
 // ***** PRODUCT IDENTIFICATION *****
 const char* BRAND_ID = "ControLeo";
 const char* PRODUCT_ID = "Reflow Oven v2";
@@ -128,9 +138,9 @@ struct Hardware {
   ControLeo2_MAX31855 Thermocouple; // Specify MAX31855 thermocouple interface
 };
 Hardware hardware = { 0, {
-    4, // upper heater pin
-    5, // lower heater pin
-    6  // booster heater pin
+    TOP_ELEMENT_PIN, 
+    BOTTOM_ELEMENT_PIN, 
+    BOOST_ELEMENT_PIN  
   },
   ControLeo2_LiquidCrystal(),
   ControLeo2_MAX31855() };
@@ -185,6 +195,7 @@ ReflowProfile profiles[] = {
     }
   },
 };
+
 #define NUM_PROFILES (sizeof(profiles)/sizeof(ReflowProfile)) //array size is computed from initialized data
 
 // ***** STATE TRACKING *****
@@ -205,6 +216,7 @@ struct OvenState {
   unsigned long ActiveSince;
   ReflowPhase PhaseSchedule[NUM_PHASES + 2];
 };
+
 OvenState currentState = {
   -1, false, false, 0, 0,
   0, CLOCK_INTERVAL, SAMPLE_INTERVAL, CYCLE_INTERVAL,
